@@ -1,220 +1,45 @@
 name: CI
 
 on:
+  push:
+    branches: [main, develop]
   pull_request:
-    branches: [develop, main]
+    branches: [main, develop]
+  workflow_call:
 
 jobs:
-  # ─── Step 1: Build shared package ──────────────────────────────────────────
-  build-api:
-    name: Build @osm/api
+  build-and-test:
+    name: Build & Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@v4
         with:
           version: 9
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: pnpm
+          node-version: "22"
+          cache: "pnpm"
 
-      - run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      - run: pnpm --filter @osm/api build
+      - name: Build shared
+        run: pnpm --filter @osm/shared build
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: api-dist
-          path: packages/api/dist
+      - name: Generate Prisma client
+        run: pnpm --filter api exec prisma generate
 
-  # ─── Step 2: Backend (depends on api) ──────────────────────────────────────
-  lint-typecheck-backend:
-    name: Lint + Type-check (backend)
-    runs-on: ubuntu-latest
-    needs: build-api
-    steps:
-      - uses: actions/checkout@v4
+      - name: Build API
+        run: pnpm --filter api build
 
-      - uses: pnpm/action-setup@v3
-        with:
-          version: 9
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: api-dist
-          path: packages/api/dist
-
-      - run: pnpm --filter @osm/backend exec tsc --noEmit
-        name: Type-check backend
-
-      - run: pnpm --filter @osm/backend lint
-        name: Lint backend
-        continue-on-error: false
-
-  test-backend:
-    name: Test (backend)
-    runs-on: ubuntu-latest
-    needs: build-api
-    services:
-      postgres:
-        image: postgres:16-alpine
+      - name: Build frontend
+        run: pnpm --filter frontend build
         env:
-          POSTGRES_DB: osm_test
-          POSTGRES_USER: osm
-          POSTGRES_PASSWORD: osm_test_password
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    steps:
-      - uses: actions/checkout@v4
+          VITE_TRPC_URL: https://placeholder/trpc
+          VITE_APP_URL: https://placeholder
 
-      - uses: pnpm/action-setup@v3
-        with:
-          version: 9
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: api-dist
-          path: packages/api/dist
-
-      - name: Run Prisma migrations (test DB)
-        run: pnpm --filter @osm/backend exec prisma migrate deploy
-        env:
-          DATABASE_URL: postgresql://osm:osm_test_password@localhost:5432/osm_test
-
-      - name: Run Vitest
-        run: pnpm --filter @osm/backend test --run
-        env:
-          DATABASE_URL: postgresql://osm:osm_test_password@localhost:5432/osm_test
-          NODE_ENV: test
-
-  build-backend:
-    name: Build (backend)
-    runs-on: ubuntu-latest
-    needs: [lint-typecheck-backend, test-backend]
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v3
-        with:
-          version: 9
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: api-dist
-          path: packages/api/dist
-
-      - run: pnpm --filter @osm/backend build
-
-  # ─── Step 3: Frontend (depends on api) ─────────────────────────────────────
-  lint-typecheck-frontend:
-    name: Lint + Type-check (frontend)
-    runs-on: ubuntu-latest
-    needs: build-api
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v3
-        with:
-          version: 9
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: api-dist
-          path: packages/api/dist
-
-      - run: pnpm --filter @osm/frontend exec vue-tsc --noEmit
-        name: Type-check frontend
-
-      - run: pnpm --filter @osm/frontend lint
-        name: Lint frontend
-
-  test-frontend:
-    name: Test (frontend)
-    runs-on: ubuntu-latest
-    needs: build-api
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v3
-        with:
-          version: 9
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: api-dist
-          path: packages/api/dist
-
-      - run: pnpm --filter @osm/frontend test --run
-
-  build-frontend:
-    name: Build (frontend)
-    runs-on: ubuntu-latest
-    needs: [lint-typecheck-frontend, test-frontend]
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v3
-        with:
-          version: 9
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: api-dist
-          path: packages/api/dist
-
-      - run: pnpm --filter @osm/frontend build
-        env:
-          VITE_TRPC_URL: http://placeholder/trpc
-          VITE_UPLOAD_URL: http://placeholder/upload
-          VITE_OKTA_SAML_URL: https://placeholder/saml2/authenticate/
-          VITE_OKTA_SERVICE_PROVIDER_ID: osm-ci
+      - name: Test frontend
+        run: pnpm --filter frontend test

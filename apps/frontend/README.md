@@ -1,5 +1,19 @@
-# Vue 3 + TypeScript + Vite
+# OSM Frontend
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Vue 3 + Vite + TypeScript SPA for the Operational Score Manager.
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Start dev server (http://localhost:5173) |
+| `pnpm build` | Production build → `dist/` |
+| `pnpm test` | Run Vitest (single run) |
+| `pnpm test:watch` | Run Vitest in watch mode |
+| `pnpm preview` | Preview production build |
+
+## Mock auth
+
+1. Open `/sign-in`
+2. Click **Sign in** → redirects to `/login?token=mock-token`
+3. Stored in localStorage; API accepts `mock-token` in development
