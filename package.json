@@ -1,0 +1,17 @@
+{
+  "name": "osm-nest",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -r run build",
+    "dev": "pnpm --filter api dev",
+    "db:push": "pnpm --filter api db:push",
+    "db:generate": "pnpm --filter api db:generate"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
