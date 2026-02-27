@@ -284,6 +284,17 @@ model Bucket {
   category    Category @relation(fields: [categoryId], references: [id])
 }
 
+// ─── Query History (Historico) ────────────────────────────────────────────────
+
+model QueryHistory {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  modelId    String?  @db.ObjectId
+  modelName  String
+  queriedAt  DateTime @default(now())
+  documentId String?
+  userId     String?
+}
+
 // ─── Showroom ─────────────────────────────────────────────────────────────────
 
 model ShowroomEntry {

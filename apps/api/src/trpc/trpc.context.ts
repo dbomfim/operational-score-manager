@@ -27,29 +27,44 @@ export class TrpcContext implements TRPCContext {
 
     if (authHeader?.startsWith("Bearer ")) {
       const token = authHeader.slice(7);
-      try {
-        const secret =
-          process.env.JWT_SECRET || "dev-secret-change-in-production";
-        const { payload } = await jose.jwtVerify(
-          token,
-          new TextEncoder().encode(secret)
-        );
-        const sub = payload.sub as string;
-        const email =
-          (payload.email as string) ||
-          (payload.preferred_username as string) ||
-          sub;
 
-        const permissions = await this.loadPermissions(sub);
+      // Dev mock: accept "mock-token" in development for local testing
+      if (
+        token === "mock-token" &&
+        process.env.NODE_ENV !== "production"
+      ) {
         user = {
-          userId: sub,
-          userEmail: email,
-          oktaId: sub,
+          userId: "mock-user-id",
+          userEmail: "mock@localhost",
+          oktaId: "mock-okta-id",
           accessToken: token,
-          permissions,
+          permissions: ["admin:super", "admin:access", "models:list", "clients:list", "categories:list", "categories:create", "categories:update", "buckets:list", "buckets:create", "buckets:update", "showroom:view", "historico:list"],
         };
-      } catch {
-        user = null;
+      } else {
+        try {
+          const secret =
+            process.env.JWT_SECRET || "dev-secret-change-in-production";
+          const { payload } = await jose.jwtVerify(
+            token,
+            new TextEncoder().encode(secret)
+          );
+          const sub = payload.sub as string;
+          const email =
+            (payload.email as string) ||
+            (payload.preferred_username as string) ||
+            sub;
+
+          const permissions = await this.loadPermissions(sub);
+          user = {
+            userId: sub,
+            userEmail: email,
+            oktaId: sub,
+            accessToken: token,
+            permissions,
+          };
+        } catch {
+          user = null;
+        }
       }
     }
 
