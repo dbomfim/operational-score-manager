@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Auth & Users ────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  oktaId       String   @unique
+  email        String
+  fullName     String
+  username     String
+  isActive     Boolean  @default(true)
+  lastLoginAt  DateTime?
+  firstLoginAt DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  roles        UserRole[]
+}
+
+model UserRole {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  roleId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+  role   Role   @relation(fields: [roleId], references: [id])
+  @@unique([userId, roleId])
+}
+
+// ─── RBAC ────────────────────────────────────────────────────────────────────
+
+model Role {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String   @unique
+  description   String?
+  isActive      Boolean  @default(true)
+  parentRoleId  String?  @db.ObjectId
+  scope         Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  parentRole    Role?    @relation("RoleHierarchy", fields: [parentRoleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  childRoles    Role[]   @relation("RoleHierarchy")
+  users         UserRole[]
+  permissions   RolePermission[]
+}
+
+model Permission {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  code          String   @unique
+  resource      String
+  action        String
+  fieldGroup    String?
+  description   String
+  module        String
+  riskLevel     String?
+  category      String?
+  isSensitive   Boolean  @default(false)
+  isActive      Boolean  @default(true)
+  deprecatedAt  DateTime?
+  replacedById  String?  @db.ObjectId
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  roles         RolePermission[]
+}
+
+model RolePermission {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  roleId       String     @db.ObjectId
+  permissionId String     @db.ObjectId
+  role         Role       @relation(fields: [roleId], references: [id])
+  permission   Permission @relation(fields: [permissionId], references: [id])
+  @@unique([roleId, permissionId])
+}
