@@ -114,6 +114,21 @@ packages/shared → apps/api
 
 ---
 
+## Setup (before first run)
+
+```bash
+# Copy env template (Prisma loads from apps/api/)
+cp apps/api/.env.example apps/api/.env
+
+# Start MongoDB
+docker compose up -d
+
+# Sync schema
+pnpm --filter api db:push
+```
+
+---
+
 ## Completion Criteria
 
 - [x] `pnpm install` succeeds
