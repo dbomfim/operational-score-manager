@@ -1,0 +1,60 @@
+# Optional: sync Prisma schema to staging/production (MongoDB db push)
+# Triggers: manual dispatch, or push to develop when schema changes
+name: DB schema sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        default: "staging"
+        type: choice
+        options:
+          - staging
+          - production
+  push:
+    branches: [develop]
+    paths:
+      - "apps/api/prisma/schema.prisma"
+
+jobs:
+  db-push-staging:
+    name: Prisma db push (staging)
+    if: github.event_name == 'push' || github.event.inputs.environment == 'staging'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Sync schema (MongoDB)
+        run: pnpm --filter api exec prisma db push
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+
+  db-push-production:
+    name: Prisma db push (production)
+    if: github.event.inputs.environment == 'production'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Sync schema (MongoDB)
+        run: pnpm --filter api exec prisma db push
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
