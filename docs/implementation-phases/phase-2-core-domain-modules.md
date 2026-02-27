@@ -1,7 +1,7 @@
 # Phase 2: Core Domain Modules
 
 > **Branch:** `feat/phase-2/core-domain-modules`  
-> **Status:** In Progress  
+> **Status:** Complete  
 > **Reference:** `new-architecture-starter.md` §9, `NEW_ARCHITECTURE_PLAN.md` §5–6
 
 ---
@@ -16,15 +16,15 @@ Phase 2 implements the core domain tRPC routers and REST file upload endpoints. 
 
 | # | Deliverable | Description | Status |
 |---|-------------|-------------|--------|
-| 1 | Prisma schema expansion | ScoringModel, Client, Category, Bucket, ShowroomEntry, reference entities, junctions | ⬜ |
-| 2 | models router | list, getById, getAudit, create, update, sync, syncOne | ⬜ |
-| 3 | clients router | list, getById | ⬜ |
-| 4 | categories router | list, listAll, create, update | ⬜ |
-| 5 | buckets router | list, listAll, getEditInfo, create, update | ⬜ |
-| 6 | showroom router | list, featured, reports | ⬜ |
-| 7 | lookup router | all, byEntity | ⬜ |
-| 8 | withPermission middleware | Permission-gate procedures by code | ⬜ |
-| 9 | File upload REST | POST /upload/template, POST /upload/validate-variables | ⬜ |
+| 1 | Prisma schema expansion | ScoringModel, Client, Category, Bucket, ShowroomEntry, reference entities | ✅ |
+| 2 | models router | list, getById, getAudit, create, update, sync, syncOne | ✅ |
+| 3 | clients router | list, getById | ✅ |
+| 4 | categories router | list, listAll, create, update | ✅ |
+| 5 | buckets router | list, listAll, getEditInfo, create, update | ✅ |
+| 6 | showroom router | list, featured, reports | ✅ |
+| 7 | lookup router | all, byEntity | ✅ |
+| 8 | withPermission middleware | Permission-gate procedures by code | ✅ |
+| 9 | File upload REST | POST /upload/template, POST /upload/validate-variables | ✅ |
 
 ---
 
