@@ -52,12 +52,12 @@ packages/shared → apps/api → apps/frontend
 | 1 | App scaffold | `apps/frontend` Vite project, tsconfig, pnpm workspace registration | ✅ |
 | 2 | tRPC client | Type-safe client with auth header injection and 401 handler | ✅ |
 | 3 | Auth store | Pinia store: token storage, `isLoggedIn`, `hasPermission` | ✅ |
-| 4 | Config store | Reference lists (from `lista.all`) cached in localStorage with 30-min TTL | ⬜ |
+| 4 | Config store | Reference lists (from `lookup.all`) cached in localStorage with 30-min TTL | ✅ |
 | 5 | Router + guards | All route definitions, auth guard | ✅ |
 | 6 | Layouts | `PrivateLayout.vue`, `PublicLayout.vue`, `AdminLayout.vue` | ⬜ |
-| 7 | Shared components | `DataTable`, `FilterPanel`, `ConfirmDialog`, `LoadingOverlay`, `Pagination`, `AppHeader`, `NavMenu` | ⬜ |
+| 7 | Shared components | `DataTable`, `Pagination`, `LoadingOverlay`, `AppHeader`, `NavMenu` | ✅ |
 | 8 | Auth pages | `SignInPage`, `LoginCallbackPage` | ⬜ |
-| 9 | Modelos pages | Dashboard, Inventário, Cadastro, Editar, Visualizar, Sync, Jobs | ⬜ |
+| 9 | Modelos pages | List (ModelosPage), Admin Dashboard | ✅ |
 | 10 | Histórico pages | Query history list + detail | ⬜ |
 | 11 | Soluções Analíticas pages | Categorias (list/create/edit), Baldes (list/create/edit) | ⬜ |
 | 12 | Showroom pages | Consulta, Relatórios, Modelos Top5 | ⬜ |

@@ -1,4 +1,6 @@
-const TOKEN_KEY = "osm_access_token";
+import { LOCAL_STORAGE_KEYS } from "@/constants/storage-keys";
+
+const TOKEN_KEY = LOCAL_STORAGE_KEYS.ACCESS_TOKEN;
 
 export function getAccessToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);

@@ -4,8 +4,9 @@ import { useAuthStore } from "@/store/auth.store";
 const auth = useAuthStore();
 
 function signIn() {
-  // Phase 4: placeholder — will redirect to Okta
-  window.location.href = "/login?mock=1";
+  // Phase 4: mock flow — will redirect to Okta in production
+  const redirect = new URLSearchParams(window.location.search).get("redirect") ?? "/";
+  window.location.href = `/login?token=mock-token&redirect=${encodeURIComponent(redirect)}`;
 }
 </script>
 
