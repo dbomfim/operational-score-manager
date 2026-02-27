@@ -21,6 +21,7 @@ export const NAV_MENU: NavItem[] = [
       { label: "Convites", path: "/admin/invitations" },
       { label: "Perfis", path: "/admin/roles" },
       { label: "Recursos", path: "/admin/permissions" },
+      { label: "Log de Auditoria", path: "/admin/audit-log" },
     ],
   },
 ];

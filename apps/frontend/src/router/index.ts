@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useAuthStore } from "@/store/auth.store";
+import { track } from "@/services/analytics.service";
 import PrivateLayout from "@/components/layout/PrivateLayout.vue";
 import PublicLayout from "@/components/layout/PublicLayout.vue";
 
@@ -71,6 +72,31 @@ const router = createRouter({
           name: "showroom",
           component: () => import("@/pages/ShowroomPage.vue"),
         },
+        {
+          path: "categorias",
+          name: "categorias",
+          component: () => import("@/pages/CategoriasPage.vue"),
+        },
+        {
+          path: "baldes",
+          name: "baldes",
+          component: () => import("@/pages/BaldesPage.vue"),
+        },
+        {
+          path: "admin/roles",
+          name: "admin-roles",
+          component: () => import("@/pages/admin/RolesListPage.vue"),
+        },
+        {
+          path: "admin/permissions",
+          name: "admin-permissions",
+          component: () => import("@/pages/admin/PermissionsListPage.vue"),
+        },
+        {
+          path: "admin/audit-log",
+          name: "admin-audit-log",
+          component: () => import("@/pages/admin/AuditLogPage.vue"),
+        },
       ],
     },
   ],
@@ -84,6 +110,14 @@ router.beforeEach((to) => {
     return { path: "/sign-in", query: { redirect: to.fullPath } };
   }
   return true;
+});
+
+router.afterEach((to) => {
+  track({
+    eventType: "page_view",
+    page: to.path,
+    referrer: document.referrer || undefined,
+  });
 });
 
 export default router;
