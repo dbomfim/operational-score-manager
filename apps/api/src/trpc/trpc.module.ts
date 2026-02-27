@@ -11,6 +11,7 @@ import { CategoriesRouter } from "./routers/categories.router";
 import { BucketsRouter } from "./routers/buckets.router";
 import { ShowroomRouter } from "./routers/showroom.router";
 import { LookupRouter } from "./routers/lookup.router";
+import { AdminRouter } from "./routers/admin/admin.router";
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { LookupRouter } from "./routers/lookup.router";
     BucketsRouter,
     ShowroomRouter,
     LookupRouter,
+    AdminRouter,
   ],
 })
 export class TrpcModule {}

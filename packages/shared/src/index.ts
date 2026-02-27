@@ -8,4 +8,5 @@ export * from "./schemas/bucket.schema";
 export * from "./schemas/showroom.schema";
 export * from "./schemas/lookup.schema";
 export * from "./schemas/audit.schema";
+export * from "./schemas/admin.schema";
 export * from "./permissions";

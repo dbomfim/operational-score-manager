@@ -308,6 +308,38 @@ model ShowroomConfig {
   updatedBy        String   @default("system")
 }
 
+// ─── Admin ────────────────────────────────────────────────────────────────────
+
+model UserInvitation {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  email       String
+  invitedById String   @db.ObjectId
+  roleIds     String[] @db.ObjectId
+  status      String   @default("PENDING") // PENDING | ACCEPTED | EXPIRED | CANCELLED
+  token       String   @unique
+  message     String?
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  acceptedAt  DateTime?
+}
+
+model AnalyticsEvent {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionId   String
+  userId      String
+  eventType   String
+  page        String?
+  referrer    String?
+  entityType  String?
+  entityId    String?
+  featureName String?
+  actionLabel String?
+  duration    Int?
+  loadTime    Int?
+  metadata    Json?
+  timestamp   DateTime @default(now())
+}
+
 // ─── Audit ───────────────────────────────────────────────────────────────────
 
 model AuditLog {
