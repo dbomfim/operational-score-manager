@@ -6,6 +6,7 @@ import { CategoriesRouter } from "./categories.router";
 import { BucketsRouter } from "./buckets.router";
 import { ShowroomRouter } from "./showroom.router";
 import { LookupRouter } from "./lookup.router";
+import { HistoricoRouter } from "./historico.router";
 
 export const routers = [
   AuthRouter,
@@ -16,4 +17,5 @@ export const routers = [
   BucketsRouter,
   ShowroomRouter,
   LookupRouter,
+  HistoricoRouter,
 ];

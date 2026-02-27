@@ -6,6 +6,7 @@ export * from "./schemas/client.schema";
 export * from "./schemas/category.schema";
 export * from "./schemas/bucket.schema";
 export * from "./schemas/showroom.schema";
+export * from "./schemas/historico.schema";
 export * from "./schemas/lookup.schema";
 export * from "./schemas/audit.schema";
 export * from "./schemas/admin.schema";

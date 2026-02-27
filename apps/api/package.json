@@ -2,13 +2,15 @@
   "name": "api",
   "version": "0.1.0",
   "private": true,
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "scripts": {
     "build": "nest build",
     "dev": "nest start --watch",
     "start": "nest start",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "db:seed": "tsx prisma/seed.ts",
     "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {

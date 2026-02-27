@@ -2,9 +2,29 @@ import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { getAccessToken, setAccessToken, clearAccessToken } from "@/lib/auth";
 
+export const MOCK_PERMISSIONS = [
+  "admin:super",
+  "admin:access",
+  "models:list",
+  "clients:list",
+  "categories:list",
+  "categories:create",
+  "categories:update",
+  "buckets:list",
+  "buckets:create",
+  "buckets:update",
+  "showroom:view",
+  "historico:list",
+];
+
+function getInitialPermissions(): string[] {
+  const token = getAccessToken();
+  return token === "mock-token" ? MOCK_PERMISSIONS : [];
+}
+
 export const useAuthStore = defineStore("auth", () => {
   const token = ref<string | null>(getAccessToken());
-  const permissions = ref<string[]>([]);
+  const permissions = ref<string[]>(getInitialPermissions());
 
   const isLoggedIn = computed(() => !!token.value);
 

@@ -11,6 +11,7 @@ import { CategoriesRouter } from "./routers/categories.router";
 import { BucketsRouter } from "./routers/buckets.router";
 import { ShowroomRouter } from "./routers/showroom.router";
 import { LookupRouter } from "./routers/lookup.router";
+import { HistoricoRouter } from "./routers/historico.router";
 import { AdminRouter } from "./routers/admin/admin.router";
 
 @Module({
@@ -32,6 +33,7 @@ import { AdminRouter } from "./routers/admin/admin.router";
     BucketsRouter,
     ShowroomRouter,
     LookupRouter,
+    HistoricoRouter,
     AdminRouter,
   ],
 })

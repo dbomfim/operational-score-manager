@@ -11,6 +11,7 @@ export const NAV_MENU: NavItem[] = [
   { label: "Categorias", path: "/categorias", permission: "categories:list" },
   { label: "Baldes", path: "/baldes", permission: "buckets:list" },
   { label: "Showroom", path: "/showroom", permission: "showroom:view" },
+  { label: "Histórico", path: "/historico/consulta", permission: "historico:list" },
   {
     label: "Admin",
     path: "/admin",

@@ -3,6 +3,7 @@ import { useAuthStore } from "@/store/auth.store";
 import { track } from "@/services/analytics.service";
 import PrivateLayout from "@/components/layout/PrivateLayout.vue";
 import PublicLayout from "@/components/layout/PublicLayout.vue";
+import AdminLayout from "@/components/layout/AdminLayout.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -49,18 +50,15 @@ const router = createRouter({
         },
         {
           path: "admin",
-          name: "admin",
-          component: () => import("@/pages/admin/DashboardPage.vue"),
-        },
-        {
-          path: "admin/users",
-          name: "admin-users",
-          component: () => import("@/pages/admin/UsersListPage.vue"),
-        },
-        {
-          path: "admin/invitations",
-          name: "admin-invitations",
-          component: () => import("@/pages/admin/InvitationsListPage.vue"),
+          component: AdminLayout,
+          children: [
+            { path: "", name: "admin", component: () => import("@/pages/admin/DashboardPage.vue") },
+            { path: "users", name: "admin-users", component: () => import("@/pages/admin/UsersListPage.vue") },
+            { path: "invitations", name: "admin-invitations", component: () => import("@/pages/admin/InvitationsListPage.vue") },
+            { path: "roles", name: "admin-roles", component: () => import("@/pages/admin/RolesListPage.vue") },
+            { path: "permissions", name: "admin-permissions", component: () => import("@/pages/admin/PermissionsListPage.vue") },
+            { path: "audit-log", name: "admin-audit-log", component: () => import("@/pages/admin/AuditLogPage.vue") },
+          ],
         },
         {
           path: "clientes",
@@ -78,24 +76,39 @@ const router = createRouter({
           component: () => import("@/pages/CategoriasPage.vue"),
         },
         {
+          path: "categorias/nova",
+          name: "categorias-cadastro",
+          component: () => import("@/pages/CategoriasCadastroPage.vue"),
+        },
+        {
+          path: "categorias/:id",
+          name: "categorias-editar",
+          component: () => import("@/pages/CategoriasEditarPage.vue"),
+        },
+        {
+          path: "historico/consulta",
+          name: "historico-consulta",
+          component: () => import("@/pages/HistoricoConsultaPage.vue"),
+        },
+        {
+          path: "historico/:id",
+          name: "historico-detail",
+          component: () => import("@/pages/HistoricoDetailPage.vue"),
+        },
+        {
           path: "baldes",
           name: "baldes",
           component: () => import("@/pages/BaldesPage.vue"),
         },
         {
-          path: "admin/roles",
-          name: "admin-roles",
-          component: () => import("@/pages/admin/RolesListPage.vue"),
+          path: "baldes/novo",
+          name: "baldes-novo",
+          component: () => import("@/pages/BaldesNovoPage.vue"),
         },
         {
-          path: "admin/permissions",
-          name: "admin-permissions",
-          component: () => import("@/pages/admin/PermissionsListPage.vue"),
-        },
-        {
-          path: "admin/audit-log",
-          name: "admin-audit-log",
-          component: () => import("@/pages/admin/AuditLogPage.vue"),
+          path: "baldes/:id",
+          name: "baldes-editar",
+          component: () => import("@/pages/BaldesEditarPage.vue"),
         },
       ],
     },

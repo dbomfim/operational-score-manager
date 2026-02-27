@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { useAuthStore } from "@/store/auth.store";
+import { useAuthStore, MOCK_PERMISSIONS } from "@/store/auth.store";
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -12,6 +12,7 @@ onMounted(() => {
   const redirect = params.get("redirect") ?? "/";
   if (token) {
     auth.setToken(token);
+    if (token === "mock-token") auth.setPermissions(MOCK_PERMISSIONS);
   }
   router.replace(redirect);
 });

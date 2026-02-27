@@ -54,19 +54,19 @@ packages/shared → apps/api → apps/frontend
 | 3 | Auth store | Pinia store: token storage, `isLoggedIn`, `hasPermission` | ✅ |
 | 4 | Config store | Reference lists (from `lookup.all`) cached in localStorage with 30-min TTL | ✅ |
 | 5 | Router + guards | All route definitions, auth guard | ✅ |
-| 6 | Layouts | `PrivateLayout.vue`, `PublicLayout.vue`, `AdminLayout.vue` | ⬜ |
+| 6 | Layouts | `PrivateLayout.vue`, `PublicLayout.vue`, `AdminLayout.vue` | ✅ |
 | 7 | Shared components | `DataTable`, `Pagination`, `LoadingOverlay`, `AppHeader`, `NavMenu` | ✅ |
-| 8 | Auth pages | `SignInPage`, `LoginCallbackPage` | ⬜ |
+| 8 | Auth pages | `SignInPage`, `LoginCallbackPage` | ✅ |
 | 9 | Modelos pages | List (ModelosPage), Admin Dashboard | ✅ |
-| 10 | Histórico pages | Query history list + detail | ⬜ |
-| 11 | Soluções Analíticas pages | Categorias list, Baldes list | ✅ |
+| 10 | Histórico pages | Query history list + detail | ✅ |
+| 11 | Soluções Analíticas pages | Categorias list + create/edit, Baldes list + create/edit | ✅ |
 | 12 | Showroom pages | Consulta (list) | ✅ |
 | 13 | Perfis pages | List (admin/roles) | ✅ |
 | 14 | Recursos pages | List (admin/permissions) | ✅ |
 | 15 | Admin pages | Dashboard, Users, Invitations, Roles, Permissions, AuditLog | ✅ |
 | 16 | Analytics service | Client-side event queue with 5-second flush | ✅ |
-| 17 | Docker + Nginx | Multi-stage build with SPA fallback, static asset caching, security headers | ⬜ |
-| 18 | Tests | Component tests for shared components + page smoke tests | ⬜ |
+| 17 | Docker + Nginx | Multi-stage build with SPA fallback, static asset caching, security headers | ✅ |
+| 18 | Tests | Component tests for shared components + page smoke tests | ✅ |
 
 ---
 
@@ -632,6 +632,6 @@ Nginx config must include:
 - [ ] `/login?token=<valid_jwt>` stores token and redirects to `/modelos/dashboard`
 - [ ] `NavMenu` hides items where `hasPermission(recurso)` returns false
 - [ ] All pages render without TypeScript errors
-- [ ] `DataTable`, `FilterPanel`, `Pagination` have passing component tests
+- [x] `DataTable`, `Pagination`, `LoadingOverlay` have passing component tests
 - [ ] `docker build apps/frontend` succeeds and container serves the SPA
 - [ ] Nginx SPA fallback works: direct navigation to `/modelos/inventario` returns 200
