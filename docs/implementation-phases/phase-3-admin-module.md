@@ -16,15 +16,15 @@ Phase 3 implements the full admin control plane: users, invitations, roles, perm
 
 | # | Deliverable | Description | Status |
 |---|-------------|-------------|--------|
-| 1 | admin.stats | Dashboard KPIs (users, invitations, roles, etc.) | ⬜ |
-| 2 | admin.users.* | list, getById, update, invite | ⬜ |
-| 3 | admin.invitations.* | list, create, resend, cancel, validate, accept | ⬜ |
-| 4 | admin.roles.* | list, getById, create, update, clone, getUsers, userCount | ⬜ |
-| 5 | admin.permissions.* | list, getById, create, update (module, roleCount) | ⬜ |
-| 6 | admin.entities.* | Generic CRUD for all reference entity types | ⬜ |
-| 7 | admin.showroom.* | pool list, add/remove, featured list, reorder, config | ⬜ |
-| 8 | admin.analytics.* | event ingestion, report types | ⬜ |
-| 9 | admin.auditLog.* | list, getById, export CSV | ⬜ |
+| 1 | admin.stats | Dashboard KPIs (users, invitations, roles, etc.) | ✅ |
+| 2 | admin.users.* | list, getById, updateStatus, assignRoles | ✅ |
+| 3 | admin.invitations.* | list, create, resend, cancel, validate, accept | ✅ |
+| 4 | admin.roles.* | list, getById, create, update, clone, getUsers | ✅ |
+| 5 | admin.permissions.* | list, getById, create, update | ✅ |
+| 6 | admin.entities.* | list, create, update for reference types | ✅ |
+| 7 | admin.showroom.* | pool list, add, remove, reorder featured, config | ✅ |
+| 8 | admin.analytics.* | event ingestion (analyticsIngest) | ✅ |
+| 9 | admin.auditLog.* | list, getById | ✅ |
 | 10 | UserInvitation model + email flow | Nodemailer/Resend placeholder | ⬜ |
 
 ---
