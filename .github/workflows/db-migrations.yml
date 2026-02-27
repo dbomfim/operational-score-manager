@@ -1,0 +1,82 @@
+name: Database Migrations
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      dry_run:
+        description: Dry run (show pending migrations without applying)
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  migrate:
+    name: Run Prisma migrations (${{ inputs.environment }})
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}   # requires manual approval for production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm --filter @osm/backend exec prisma generate
+        env:
+          DATABASE_URL: ${{ secrets[format('{0}_DATABASE_URL', upper(inputs.environment))] }}
+
+      - name: Show pending migrations (dry run)
+        if: inputs.dry_run == true
+        run: pnpm --filter @osm/backend exec prisma migrate status
+        env:
+          DATABASE_URL: ${{ secrets[format('{0}_DATABASE_URL', upper(inputs.environment))] }}
+
+      - name: Apply migrations
+        if: inputs.dry_run == false
+        run: pnpm --filter @osm/backend exec prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets[format('{0}_DATABASE_URL', upper(inputs.environment))] }}
+
+      - name: Verify schema is in sync
+        run: pnpm --filter @osm/backend exec prisma migrate status
+        env:
+          DATABASE_URL: ${{ secrets[format('{0}_DATABASE_URL', upper(inputs.environment))] }}
+
+  # ─── Safety: validate schema before any migration ──────────────────────────
+  validate-schema:
+    name: Validate Prisma schema
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Validate schema.prisma
+        run: pnpm --filter @osm/backend exec prisma validate
+        env:
+          DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder

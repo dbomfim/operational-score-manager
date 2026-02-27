@@ -1,0 +1,130 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [develop]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ github.repository_owner }}/osm
+
+jobs:
+  # ─── Reuse CI quality gate ──────────────────────────────────────────────────
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  # ─── Database migrations ────────────────────────────────────────────────────
+  migrate-staging:
+    name: Prisma migrate (staging)
+    runs-on: ubuntu-latest
+    needs: ci
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Run migrations
+        run: pnpm --filter @osm/backend exec prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+
+  # ─── Build & push backend image ────────────────────────────────────────────
+  docker-backend:
+    name: Docker build + push (backend)
+    runs-on: ubuntu-latest
+    needs: migrate-staging
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/backend/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-backend:staging
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-backend:${{ github.sha }}
+
+  # ─── Build & push frontend image ───────────────────────────────────────────
+  docker-frontend:
+    name: Docker build + push (frontend)
+    runs-on: ubuntu-latest
+    needs: ci
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/frontend/Dockerfile
+          push: true
+          build-args: |
+            VITE_TRPC_URL=${{ vars.STAGING_TRPC_URL }}
+            VITE_UPLOAD_URL=${{ vars.STAGING_UPLOAD_URL }}
+            VITE_OKTA_SAML_URL=${{ vars.STAGING_OKTA_SAML_URL }}
+            VITE_OKTA_SERVICE_PROVIDER_ID=${{ vars.STAGING_OKTA_SERVICE_PROVIDER_ID }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-frontend:staging
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-frontend:${{ github.sha }}
+
+  # ─── Deploy to staging cluster ─────────────────────────────────────────────
+  deploy-staging:
+    name: Deploy to staging (Kubernetes)
+    runs-on: ubuntu-latest
+    needs: [docker-backend, docker-frontend]
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Set kubeconfig
+        run: echo "${{ secrets.STAGING_KUBECONFIG }}" | base64 -d > /tmp/kubeconfig
+
+      - name: Update backend image
+        run: |
+          kubectl set image deployment/osm-backend \
+            backend=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-backend:${{ github.sha }} \
+            -n osm-staging \
+            --kubeconfig=/tmp/kubeconfig
+
+      - name: Update frontend image
+        run: |
+          kubectl set image deployment/osm-frontend \
+            frontend=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-frontend:${{ github.sha }} \
+            -n osm-staging \
+            --kubeconfig=/tmp/kubeconfig
+
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/osm-backend -n osm-staging --timeout=120s --kubeconfig=/tmp/kubeconfig
+          kubectl rollout status deployment/osm-frontend -n osm-staging --timeout=120s --kubeconfig=/tmp/kubeconfig
+
+      - name: Health check
+        run: |
+          curl --fail --retry 5 --retry-delay 5 ${{ vars.STAGING_BACKEND_URL }}/health

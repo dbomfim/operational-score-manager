@@ -1,0 +1,60 @@
+{
+  "github.copilot.enable": {
+    "*": true
+  },
+  "github.copilot.advanced": {
+    "inlineSuggestCount": 3
+  },
+
+  // TypeScript
+  "typescript.preferences.importModuleSpecifier": "shortest",
+  "typescript.suggest.autoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+
+  // Formatting
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[vue]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[yaml]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+
+  // Editor
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.rulers": [100],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  // Search — exclude build artifacts and generated files
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/.turbo": true,
+    "**/prisma/generated": true,
+    "apps/backend/src/generated": true,
+    "**/*.js.map": true
+  },
+
+  // File explorer — hide clutter
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.DS_Store": true
+  },
+
+  // Prisma
+  "[prisma]": { "editor.defaultFormatter": "Prisma.prisma" },
+
+  // Vitest
+  "vitest.enable": true,
+  "vitest.commandLine": "pnpm vitest",
+
+  // Workspace-level pnpm
+  "npm.packageManager": "pnpm",
+
+  // Ensure consistent line endings
+  "files.eol": "\n"
+}

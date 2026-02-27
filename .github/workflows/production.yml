@@ -1,0 +1,160 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ github.repository_owner }}/osm
+
+jobs:
+  # ─── Reuse CI quality gate ──────────────────────────────────────────────────
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  # ─── Database migrations (production) ──────────────────────────────────────
+  migrate-production:
+    name: Prisma migrate (production)
+    runs-on: ubuntu-latest
+    needs: ci
+    environment: production   # requires manual approval gate in GitHub Environments
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Run migrations
+        run: pnpm --filter @osm/backend exec prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+
+  # ─── Build & push backend image ────────────────────────────────────────────
+  docker-backend:
+    name: Docker build + push (backend)
+    runs-on: ubuntu-latest
+    needs: migrate-production
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/backend/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-backend:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-backend:${{ github.sha }}
+
+  # ─── Build & push frontend image ───────────────────────────────────────────
+  docker-frontend:
+    name: Docker build + push (frontend)
+    runs-on: ubuntu-latest
+    needs: ci
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/frontend/Dockerfile
+          push: true
+          build-args: |
+            VITE_TRPC_URL=${{ vars.PRODUCTION_TRPC_URL }}
+            VITE_UPLOAD_URL=${{ vars.PRODUCTION_UPLOAD_URL }}
+            VITE_OKTA_SAML_URL=${{ vars.PRODUCTION_OKTA_SAML_URL }}
+            VITE_OKTA_SERVICE_PROVIDER_ID=${{ vars.PRODUCTION_OKTA_SERVICE_PROVIDER_ID }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-frontend:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-frontend:${{ github.sha }}
+
+  # ─── Deploy to production cluster (Argo Rollouts canary) ───────────────────
+  deploy-production:
+    name: Deploy to production (Argo Rollouts canary)
+    runs-on: ubuntu-latest
+    needs: [docker-backend, docker-frontend]
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Install Argo Rollouts plugin
+        run: |
+          curl -LO https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-linux-amd64
+          chmod +x kubectl-argo-rollouts-linux-amd64
+          sudo mv kubectl-argo-rollouts-linux-amd64 /usr/local/bin/kubectl-argo-rollouts
+
+      - name: Set kubeconfig
+        run: echo "${{ secrets.PRODUCTION_KUBECONFIG }}" | base64 -d > /tmp/kubeconfig
+
+      - name: Update backend canary image
+        run: |
+          kubectl argo rollouts set image osm-backend \
+            backend=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-backend:${{ github.sha }} \
+            -n osm-production \
+            --kubeconfig=/tmp/kubeconfig
+
+      - name: Update frontend canary image
+        run: |
+          kubectl argo rollouts set image osm-frontend \
+            frontend=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-frontend:${{ github.sha }} \
+            -n osm-production \
+            --kubeconfig=/tmp/kubeconfig
+
+      - name: Monitor canary (5 minutes)
+        run: |
+          kubectl argo rollouts status osm-backend -n osm-production --timeout=300s --kubeconfig=/tmp/kubeconfig
+          kubectl argo rollouts status osm-frontend -n osm-production --timeout=300s --kubeconfig=/tmp/kubeconfig
+
+      - name: Promote to 100%
+        run: |
+          kubectl argo rollouts promote osm-backend -n osm-production --kubeconfig=/tmp/kubeconfig
+          kubectl argo rollouts promote osm-frontend -n osm-production --kubeconfig=/tmp/kubeconfig
+
+      - name: Health check
+        run: |
+          curl --fail --retry 5 --retry-delay 10 ${{ vars.PRODUCTION_BACKEND_URL }}/health
+
+  # ─── Notify on success ─────────────────────────────────────────────────────
+  notify:
+    name: Notify deployment
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    if: always()
+    steps:
+      - name: Notify success
+        if: needs.deploy-production.result == 'success'
+        run: |
+          echo "✅ OSM production deploy successful — ${{ github.sha }}"
+          # Add Slack/Teams webhook call here if needed
+
+      - name: Notify failure
+        if: needs.deploy-production.result != 'success'
+        run: |
+          echo "❌ OSM production deploy FAILED — ${{ github.sha }}"
+          # Add alerting here
