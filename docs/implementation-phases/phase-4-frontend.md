@@ -60,11 +60,11 @@ packages/shared → apps/api → apps/frontend
 | 9 | Modelos pages | List (ModelosPage), Admin Dashboard | ✅ |
 | 10 | Histórico pages | Query history list + detail | ⬜ |
 | 11 | Soluções Analíticas pages | Categorias (list/create/edit), Baldes (list/create/edit) | ⬜ |
-| 12 | Showroom pages | Consulta, Relatórios, Modelos Top5 | ⬜ |
+| 12 | Showroom pages | Consulta (list) | ✅ |
 | 13 | Perfis pages | List, Create, Edit | ⬜ |
 | 14 | Recursos pages | List, Create, Edit | ⬜ |
-| 15 | Admin pages | All pages from `ADMIN_MODULE.md` §4 | ⬜ |
-| 16 | Analytics service | Client-side event queue with 5-second flush | ⬜ |
+| 15 | Admin pages | Dashboard, Users list, Invitations list | ✅ |
+| 16 | Analytics service | Client-side event queue with 5-second flush | ✅ |
 | 17 | Docker + Nginx | Multi-stage build with SPA fallback, static asset caching, security headers | ⬜ |
 | 18 | Tests | Component tests for shared components + page smoke tests | ⬜ |
 

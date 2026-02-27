@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T">
 defineProps<{
-  columns: { key: keyof T | string; label: string; width?: string }[];
+  columns: { key: keyof T | string; label: string; width?: string; formatter?: (value: unknown) => string }[];
   data: T[];
   loading?: boolean;
 }>();
@@ -9,9 +9,10 @@ const emit = defineEmits<{
   (e: "row-click", row: T): void;
 }>();
 
-function getValue(row: T, key: keyof T | string): unknown {
-  const k = key as keyof T;
-  return row[k];
+function getValue(row: T, col: { key: keyof T | string; formatter?: (value: unknown) => string }): string {
+  const k = col.key as keyof T;
+  const raw = row[k];
+  return col.formatter ? col.formatter(raw) : String(raw ?? "—");
 }
 </script>
 
@@ -40,7 +41,7 @@ function getValue(row: T, key: keyof T | string): unknown {
           @click="emit('row-click', row)"
         >
           <td v-for="col in columns" :key="String(col.key)">
-            {{ getValue(row, col.key) }}
+            {{ getValue(row, col) }}
           </td>
         </tr>
       </tbody>

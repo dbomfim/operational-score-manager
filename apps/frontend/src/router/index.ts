@@ -30,6 +30,11 @@ const router = createRouter({
           name: "health",
           component: () => import("@/pages/HealthPage.vue"),
         },
+        {
+          path: "aceitar-convite",
+          name: "accept-invite",
+          component: () => import("@/pages/auth/AcceptInvitePage.vue"),
+        },
       ],
     },
     {
@@ -45,6 +50,26 @@ const router = createRouter({
           path: "admin",
           name: "admin",
           component: () => import("@/pages/admin/DashboardPage.vue"),
+        },
+        {
+          path: "admin/users",
+          name: "admin-users",
+          component: () => import("@/pages/admin/UsersListPage.vue"),
+        },
+        {
+          path: "admin/invitations",
+          name: "admin-invitations",
+          component: () => import("@/pages/admin/InvitationsListPage.vue"),
+        },
+        {
+          path: "clientes",
+          name: "clientes",
+          component: () => import("@/pages/ClientesPage.vue"),
+        },
+        {
+          path: "showroom",
+          name: "showroom",
+          component: () => import("@/pages/ShowroomPage.vue"),
         },
       ],
     },
