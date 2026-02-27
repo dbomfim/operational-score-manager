@@ -1,7 +1,7 @@
 # Phase 4: Frontend
 
 > **Branch:** `feat/phase-4/frontend`
-> **Status:** Planned
+> **Status:** In Progress
 > **Depends on:** Phase 1 (infrastructure & auth), Phase 2 (core domain modules), Phase 3 (admin module)
 > **Reference:** `PROJECT_INSTRUCTIONS.md` §8–11, `ADMIN_MODULE.md` §4–6
 
@@ -49,11 +49,11 @@ packages/shared → apps/api → apps/frontend
 
 | # | Deliverable | Description | Status |
 |---|-------------|-------------|--------|
-| 1 | App scaffold | `apps/frontend` Vite project, tsconfig, pnpm workspace registration | ⬜ |
-| 2 | tRPC client | Type-safe client with auth header injection and 401 handler | ⬜ |
-| 3 | Auth store | Pinia store: token storage, `isLoggedIn`, `hasPermission`, `fetchUserResources` | ⬜ |
+| 1 | App scaffold | `apps/frontend` Vite project, tsconfig, pnpm workspace registration | ✅ |
+| 2 | tRPC client | Type-safe client with auth header injection and 401 handler | ✅ |
+| 3 | Auth store | Pinia store: token storage, `isLoggedIn`, `hasPermission` | ✅ |
 | 4 | Config store | Reference lists (from `lista.all`) cached in localStorage with 30-min TTL | ⬜ |
-| 5 | Router + guards | All route definitions, auth guard, permission guard | ⬜ |
+| 5 | Router + guards | All route definitions, auth guard | ✅ |
 | 6 | Layouts | `PrivateLayout.vue`, `PublicLayout.vue`, `AdminLayout.vue` | ⬜ |
 | 7 | Shared components | `DataTable`, `FilterPanel`, `ConfirmDialog`, `LoadingOverlay`, `Pagination`, `AppHeader`, `NavMenu` | ⬜ |
 | 8 | Auth pages | `SignInPage`, `LoginCallbackPage` | ⬜ |
