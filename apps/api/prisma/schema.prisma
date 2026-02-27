@@ -76,3 +76,251 @@ model RolePermission {
   permission   Permission @relation(fields: [permissionId], references: [id])
   @@unique([roleId, permissionId])
 }
+
+// ─── Client ───────────────────────────────────────────────────────────────────
+
+model Client {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  taxId     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  models    ScoringModel[]
+}
+
+// ─── Reference / Lookup (minimal for Phase 2) ──────────────────────────────────
+
+model ModelStatus {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  description String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  models      ScoringModel[]
+}
+
+model ProductType {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  description String
+  color       String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  models      ScoringModel[]
+}
+
+model ChargeType {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  description String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  models      ScoringModel[]
+}
+
+model ExecutionType {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  description String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  models      ScoringModel[]
+}
+
+model ExecutionFrequency {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  description String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  models      ScoringModel[]
+}
+
+model Bureau {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  description String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  models      ScoringModel[]
+}
+
+model OwnerArea {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  description String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  models      ScoringModel[]
+}
+
+model Audience {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  description String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  models      ScoringModel[]
+}
+
+model Purpose {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  description String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  models      ScoringModel[]
+}
+
+model PublicProfile {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  description String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  models      ScoringModel[]
+}
+
+model BusinessUnit {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  description String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  models      ScoringModel[]
+}
+
+model ProductManager {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  description String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  models      ScoringModel[]
+}
+
+// ─── Scoring Model ────────────────────────────────────────────────────────────
+
+model ScoringModel {
+  id                    String    @id @default(auto()) @map("_id") @db.ObjectId
+  name                  String
+  description           String?
+  clientId              String?   @db.ObjectId
+  productManagerId      String?   @db.ObjectId
+  strategicGroup        String?
+  ownerAreaId           String?   @db.ObjectId
+  audienceId            String?   @db.ObjectId
+  productTypeId         String?   @db.ObjectId
+  chargeTypeId          String?   @db.ObjectId
+  statusId              String    @db.ObjectId
+  startDate             DateTime?
+  endDate               DateTime?
+  dragonizationDate     DateTime?
+  modelAge              Int?
+  executionFrequencyId  String?   @db.ObjectId
+  executionTypeId       String?   @db.ObjectId
+  bureauId              String?   @db.ObjectId
+  rangeStart            Int?
+  rangeEnd              Int?
+  returnsFlag           Boolean   @default(false)
+  hasBacktest           Boolean   @default(false)
+  isShowroomBizDev      Boolean   @default(false)
+  autoExclusion        Boolean   @default(false)
+  availableForDelivery  Boolean   @default(false)
+  recalibration         Boolean   @default(false)
+  clientVariables       Boolean   @default(false)
+  highVolume            Boolean   @default(false)
+  recurringDeliveries   Boolean   @default(false)
+  purposeId             String?   @db.ObjectId
+  publicProfileId       String?   @db.ObjectId
+  businessUnitId       String?   @db.ObjectId
+  appliedFilters        String?
+  specificRules         String?
+  notes                 String?
+  text                  String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  createdBy             String?
+  updatedBy             String?
+
+  client                Client?   @relation(fields: [clientId], references: [id])
+  status                ModelStatus @relation(fields: [statusId], references: [id])
+  productType           ProductType? @relation(fields: [productTypeId], references: [id])
+  chargeType            ChargeType? @relation(fields: [chargeTypeId], references: [id])
+  executionType         ExecutionType? @relation(fields: [executionTypeId], references: [id])
+  executionFrequency    ExecutionFrequency? @relation(fields: [executionFrequencyId], references: [id])
+  bureau                Bureau?   @relation(fields: [bureauId], references: [id])
+  ownerArea             OwnerArea? @relation(fields: [ownerAreaId], references: [id])
+  audience              Audience? @relation(fields: [audienceId], references: [id])
+  purpose               Purpose?  @relation(fields: [purposeId], references: [id])
+  publicProfile         PublicProfile? @relation(fields: [publicProfileId], references: [id])
+  businessUnit          BusinessUnit? @relation(fields: [businessUnitId], references: [id])
+  productManager        ProductManager? @relation(fields: [productManagerId], references: [id])
+  showroomEntry         ShowroomEntry?
+}
+
+// ─── Analytical Solutions ─────────────────────────────────────────────────────
+
+model Category {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  percentage  Float
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  buckets     Bucket[]
+}
+
+model Bucket {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  categoryId  String   @db.ObjectId
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  category    Category @relation(fields: [categoryId], references: [id])
+}
+
+// ─── Showroom ─────────────────────────────────────────────────────────────────
+
+model ShowroomEntry {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  modelId          String   @unique @db.ObjectId
+  modelName        String
+  modelStatus      String
+  addedById        String   @db.ObjectId
+  isFeatured       Boolean  @default(false)
+  featuredPosition Int?
+  addedAt          DateTime @default(now())
+  model            ScoringModel @relation(fields: [modelId], references: [id])
+}
+
+model ShowroomConfig {
+  id               String   @id @default("singleton") @map("_id")
+  maxFeatured      Int      @default(5)
+  autoSyncFromFlag Boolean  @default(true)
+  poolTitle        String   @default("Showroom Pool")
+  featuredTitle    String   @default("Featured Models")
+  updatedAt        DateTime @updatedAt
+  updatedBy        String   @default("system")
+}
+
+// ─── Audit ───────────────────────────────────────────────────────────────────
+
+model AuditLog {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  actorId     String
+  actorName   String
+  action      String
+  entityType  String
+  entityId    String
+  entityLabel String
+  changes     Json?
+  ipAddress   String?
+  userAgent   String?
+  timestamp   DateTime @default(now())
+  metadata    Json?
+}

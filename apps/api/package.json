@@ -7,7 +7,9 @@
     "dev": "nest start --watch",
     "start": "nest start",
     "db:generate": "prisma generate",
-    "db:push": "prisma db push"
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.0",
@@ -26,6 +28,7 @@
     "@nestjs/cli": "^10.4.0",
     "@types/node": "^22.0.0",
     "prisma": "^5.22.0",
+    "tsx": "^4.7.0",
     "typescript": "^5.4.0"
   }
 }

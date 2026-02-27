@@ -1,12 +1,14 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { ContextOptions, TRPCContext } from "nestjs-trpc";
 import * as jose from "jose";
+import { PrismaService } from "../prisma/prisma.service";
 
 export interface TrpcContextUser {
   userId: string;
   userEmail: string;
   oktaId?: string;
   accessToken?: string;
+  permissions: string[];
 }
 
 export interface TrpcContextShape {
@@ -15,6 +17,10 @@ export interface TrpcContextShape {
 
 @Injectable()
 export class TrpcContext implements TRPCContext {
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService
+  ) {}
+
   async create(opts: ContextOptions): Promise<Record<string, unknown>> {
     const authHeader = opts.req?.headers?.authorization;
     let user: TrpcContextUser | null = null;
@@ -33,11 +39,14 @@ export class TrpcContext implements TRPCContext {
           (payload.email as string) ||
           (payload.preferred_username as string) ||
           sub;
+
+        const permissions = await this.loadPermissions(sub);
         user = {
           userId: sub,
           userEmail: email,
           oktaId: sub,
           accessToken: token,
+          permissions,
         };
       } catch {
         user = null;
@@ -45,5 +54,35 @@ export class TrpcContext implements TRPCContext {
     }
 
     return { user } as Record<string, unknown>;
+  }
+
+  private async loadPermissions(oktaId: string): Promise<string[]> {
+    const user = await this.prisma.user.findFirst({
+      where: { OR: [{ oktaId }, { id: oktaId }], isActive: true },
+      include: {
+        roles: {
+          include: {
+            role: {
+              include: {
+                permissions: { include: { permission: true } },
+              },
+            },
+          },
+        },
+      },
+    });
+    const codes: string[] = [];
+    if (user) {
+      for (const ur of user.roles) {
+        if (ur.role.isActive) {
+          for (const rp of ur.role.permissions) {
+            if (rp.permission.isActive && !rp.permission.deprecatedAt) {
+              codes.push(rp.permission.code);
+            }
+          }
+        }
+      }
+    }
+    return [...new Set(codes)];
   }
 }
